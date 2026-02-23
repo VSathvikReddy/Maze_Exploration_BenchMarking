@@ -1,4 +1,5 @@
 import random
+import sys
 
 def clean_maze(N, M):
     # Initialize all walls
@@ -61,9 +62,70 @@ def dfs_maze(N, M):
 
 
 if __name__ == "__main__":
-    N = 30
-    M = 30
-    maze = dfs_maze(N, M)
-    for row in maze:
-        # print(row)
-        print("".join(["  " if x == 2 else "██" for x in row]))
+    # We now expect at least 2 arguments (mode and algorithm)
+    if len(sys.argv) < 3:
+        print("Usage: python script.py [print|gen] [dfs|clean] [Height] [Width]")
+        sys.exit(1)
+
+    mode = sys.argv[1].lower()
+    algo = sys.argv[2].lower() # New argument for the algorithm
+    
+    # Grab dimensions from command line if provided, otherwise default to 30x30
+    # Notice the indices shifted to 3 and 4 because of the new 'algo' argument
+    N = int(sys.argv[3]) if len(sys.argv) > 3 else 30 # Height
+    M = int(sys.argv[4]) if len(sys.argv) > 4 else 30 # Width
+    
+    # Decide which function to call based on the 'algo' argument
+    if algo == "clean":
+        maze = clean_maze(N, M)
+    elif algo == "dfs":
+        maze = dfs_maze(N, M)
+    else:
+        print(f"Unknown algorithm '{algo}'. Defaulting to 'dfs'.")
+        maze = dfs_maze(N, M)
+
+    # --- INJECT THE GOAL TILE ---
+    goal_placed = False
+    for i in range(N - 1, -1, -1):
+        for j in range(M - 1, -1, -1):
+            if maze[i][j] == 1:
+                maze[i][j] = 3 # 3 represents the goal in our python logic
+                goal_placed = True
+                break
+        if goal_placed:
+            break
+
+    # --- PROCESS COMMAND ---
+    if mode == "print":
+        for row in maze:
+            line = ""
+            for x in row:
+                if x == 2:
+                    line += "██" # Wall
+                elif x == 1:
+                    line += "  " # Floor
+                elif x == 3:
+                    line += "GG" # Goal
+            print(line)
+            
+    elif mode == "gen":
+        filename = "maze.txt"
+        with open(filename, "w") as f:
+            f.write(f"{M} {N}\n")
+            
+            for row in maze:
+                mapped_row = []
+                for x in row:
+                    if x == 2:
+                        mapped_row.append("0") # TileType::WALL
+                    elif x == 1:
+                        mapped_row.append("1") # TileType::FLOOR
+                    elif x == 3:
+                        mapped_row.append("2") # TileType::GOAL
+                
+                f.write(" ".join(mapped_row) + "\n")
+                
+        print(f"Success! Saved {M}x{N} '{algo}' maze to {filename}.")
+        
+    else:
+        print(f"Unknown argument: '{mode}'. Please use 'print' or 'gen'.")

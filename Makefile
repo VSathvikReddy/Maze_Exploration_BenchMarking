@@ -1,31 +1,43 @@
-SRC_FILES = src/player.cpp src/helper.cpp src/tile.cpp
-OBJ_FILES = $(SRC_FILES:.cpp=.o)
+TARGET_EXEC := game
 
-compile: render.o $(OBJ_FILES)
-	g++ render.o $(OBJ_FILES) -lsfml-graphics -lsfml-window -lsfml-system
+BUILD_DIR := build
+SRC_DIR := src
+INC_DIR := include
 
-run:
-	./a.out
+CPP_SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
+C_SRCS   := $(shell find $(SRC_DIR) -name '*.c')
+CPP_OBJS := $(CPP_SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
+C_OBJS   := $(C_SRCS:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
+#SRCS := $(CPP_SRCS) $(C_SRCS)
+OBJS := $(CPP_OBJS) $(C_OBJS)
+DEPS := $(OBJS:.o=.d)
 
-render.o:render.cpp script.cpp Include/player.hpp Include/tile.hpp Include/helper.hpp Include/values.hpp
-	g++ -c render.cpp -o render.o
-src/player.o:src/player.cpp Include/player.hpp Include/values.hpp
-	g++ -c src/player.cpp -o src/player.o
-src/helper.o:src/helper.cpp Include/tile.hpp Include/player.hpp Include/helper.hpp Include/values.hpp
-	g++ -c src/helper.cpp -o src/helper.o
-src/tile.o:src/tile.cpp Include/tile.hpp Include/values.hpp  
-	g++ -c src/tile.cpp -o src/tile.o
+INCS := $(shell find $(INC_DIR) -type d)
+INC_FLAGS := $(addprefix -I,$(INCS))
+CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
-setup:
-	sudo apt update
-	sudo apt install libsfml-dev
+LDFLAGS := -lsfml-graphics -lsfml-window -lsfml-system
 
-image: utils/image_merger.o
-	@read -p "This will modify textues? (y/n) " ans; \
-	if [ "$$ans" != "y" ]; then \
-		echo "Aborted."; \
-		exit 1; \
-	fi
-	g++ utils/image_merger.o -lsfml-graphics -lsfml-window -lsfml-system
-	./a.out
-	rm a.out
+CXX := g++
+CC  := gcc
+
+$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+	mkdir -p $(BUILD_DIR)
+	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	mkdir -p $(dir $@)
+	$(CXX) $(CPPFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) -c $< -o $@
+
+run: $(BUILD_DIR)/$(TARGET_EXEC)
+	./$(BUILD_DIR)/$(TARGET_EXEC)
+
+.PHONY: clean
+clean:
+	rm -rf $(BUILD_DIR)
+
+-include $(DEPS)
