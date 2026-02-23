@@ -42,10 +42,10 @@ void Maze::set_tile_position(sf::Vertex* quad, uint8_t x, uint8_t y, uint8_t til
 void Maze::set_tile_color(sf::Vertex* quad, uint8_t tile_value){
     TileType type = static_cast<TileType>(tile_value);
     if(type == TileType::WALL){
-        quad[0].color = sf::Color::Black;
-        quad[1].color = sf::Color::Black;
-        quad[2].color = sf::Color::Black;
-        quad[3].color = sf::Color::Black;
+        quad[0].color = sf::Color::Green;
+        quad[1].color = sf::Color::Green;
+        quad[2].color = sf::Color::Green;
+        quad[3].color = sf::Color::Green;
     }else if (type == TileType::GOAL){
         sf::Color goalColor(255, 223, 0);
         quad[0].color = goalColor;
@@ -53,10 +53,10 @@ void Maze::set_tile_color(sf::Vertex* quad, uint8_t tile_value){
         quad[2].color = goalColor;
         quad[3].color = goalColor;
     }else{
-        quad[0].color = sf::Color::White;
-        quad[1].color = sf::Color::White;
-        quad[2].color = sf::Color::White;
-        quad[3].color = sf::Color::White;
+        quad[0].color = sf::Color::Black;
+        quad[1].color = sf::Color::Black;
+        quad[2].color = sf::Color::Black;
+        quad[3].color = sf::Color::Black;
     }
 }
 bool Maze::load_vertices(uint8_t tile_size){
