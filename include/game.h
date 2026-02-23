@@ -7,7 +7,7 @@
 class Game{
 private:
     Maze maze;
-    Player_base* player;
+    std::unique_ptr<Player_base> player;
     sf::RenderWindow window;
     
     sf::Clock clock;

@@ -5,7 +5,6 @@ Game::Game(const std::string& maze_location, const std::string& tileset_location
 }
 
 Game::~Game(){
-    delete player;
 }
 
 void Game::handle_event(const sf::Event& event){
