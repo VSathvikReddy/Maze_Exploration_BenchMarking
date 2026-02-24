@@ -6,7 +6,7 @@
 
 #include "player.h"
 
-class BotLoader {
+class BotLoader{
 private:
     std::vector<std::string> bot_paths;
     size_t current_index = 0;

@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <stdexcept>
+#include <functional>
 
 void Maze::draw(sf::RenderTarget& target, sf::RenderStates states) const{
     states.transform *= sf::Transformable::getTransform();
@@ -41,22 +42,17 @@ void Maze::set_tile_position(sf::Vertex* quad, uint8_t x, uint8_t y){
 
 void Maze::set_tile_color(sf::Vertex* quad, uint8_t tile_value){
     TileType type = static_cast<TileType>(tile_value);
+
+    std::function<void(sf::Color)> clr_change = [quad](sf::Color color){
+        quad[0].color = color; quad[1].color = color; quad[2].color = color; quad[3].color = color;
+    };
+
     if(type == TileType::WALL){
-        quad[0].color = sf::Color::Green;
-        quad[1].color = sf::Color::Green;
-        quad[2].color = sf::Color::Green;
-        quad[3].color = sf::Color::Green;
+        clr_change(sf::Color::Green);
     }else if (type == TileType::GOAL){
-        sf::Color goalColor(255, 223, 0);
-        quad[0].color = goalColor;
-        quad[1].color = goalColor;
-        quad[2].color = goalColor;
-        quad[3].color = goalColor;
+        clr_change(sf::Color(255, 223, 0));
     }else{
-        quad[0].color = sf::Color::Black;
-        quad[1].color = sf::Color::Black;
-        quad[2].color = sf::Color::Black;
-        quad[3].color = sf::Color::Black;
+        clr_change(sf::Color::Black);
     }
 }
 bool Maze::load_vertices(){
@@ -77,7 +73,6 @@ bool Maze::load_vertices(){
             }else{
                 set_tile_color(quad, grid[y][x]);
             }
-
         }
     }
     return true;
@@ -113,6 +108,7 @@ Grid Maze::loadMazeFromFile(const std::string& maze_location) {
 int Maze::getWidth() const { return grid.getWidth(); }
 int Maze::getHeight() const { return grid.getHeight(); }
 uint8_t Maze::getTileSize() const{ return tile_size;}
+
 uint8_t Maze::getTileValue(int x, int y) const {
     if (x < 0 || y < 0 ||x >= grid.getWidth() ||y >= grid.getHeight()){
         return static_cast<uint8_t>(TileType::ERROR);

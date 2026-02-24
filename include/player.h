@@ -31,6 +31,7 @@ public:
     virtual ~Player_base() = default; 
 
     virtual Direction intent_to_move(sf::Vector2i cur_position,uint8_t top, uint8_t right, uint8_t down, uint8_t left);
+    
     void setColour(sf::Color color);
     sf::Vector2i get_position() const;
 };

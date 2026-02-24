@@ -13,7 +13,7 @@ sf::Vector2i Player_base::get_position() const {
 
 void Player_base::set_position(sf::Vector2i new_position) {
     position = new_position;
-    sf::Transformable::setPosition(position.x * m_tilesize, position.y * m_tilesize);
+    sf::Transformable::setPosition(position.x*m_tilesize,position.y*m_tilesize);
 }
 
 void Player_base::draw(sf::RenderTarget& target, sf::RenderStates states) const {

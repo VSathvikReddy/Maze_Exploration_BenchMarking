@@ -3,11 +3,13 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+
+#include <stdexcept>
 Game::Game(const std::string& maze_location, const std::string& tileset_location, const std::string& bots_location,uint8_t tile_size):
     maze(maze_location, tileset_location, tile_size),
     loader(bots_location),
-    window(sf::VideoMode({static_cast<unsigned int>(maze.getWidth()*tile_size),static_cast<unsigned int>(maze.getHeight()*tile_size)}), "Tilemap") {
-
+    window(sf::VideoMode({static_cast<unsigned int>(maze.getWidth()*tile_size),static_cast<unsigned int>(maze.getHeight()*tile_size)}), "Tilemap")
+    {
 }
 
 Game::~Game(){
@@ -16,13 +18,19 @@ Game::~Game(){
 void Game::handle_event(const sf::Event& event){
     if (event.type == sf::Event::Closed){
         window.close();
+    }if (event.type == sf::Event::KeyPressed){
+        if(event.key.code == sf::Keyboard::Escape){
+            window.close();
+        }
     }
 }
 
 void Game::render(){
     window.clear();
+
     window.draw(maze);
     window.draw(*player);
+
     window.display();
 }
 
@@ -71,43 +79,55 @@ bool Game::update(){
     return false;
 
 }
+#define GREEN_ANSI "\033[32m"
+#define YELLOW_ANSI "\033[33m"
+#define RED_ANSI  "\033[31m"
+#define RESET_ANSI "\033[0m"
 
 void Game::skip_bot(){
-    std::cout<<"\033[32m["<<player->name<<"]\033[0m:\033[31m Skipped\033[0m."<<std::endl;
     window.clear();window.display();
+    std::cout<<GREEN_ANSI<<"["<<player->name<<"]"<<RESET_ANSI<<':'<<RED_ANSI<<" Skipped"<<RESET_ANSI<<'.'<<std::endl;
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
+}
+
+void Game::finish_bot(){
+    render();
+    sf::Time elapsed = clock.getElapsedTime();
+    std::cout<<GREEN_ANSI<<"["<<player->name<<"]"<<RESET_ANSI<<": "<<YELLOW_ANSI<<elapsed.asSeconds()<<RESET_ANSI<<"s."<<std::endl;
+
     std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
 }
 
 void Game::test_player(){
     clock.restart();
     while (window.isOpen()){
-        // handle events
+
         sf::Event event;
         while(window.pollEvent(event)){
             handle_event(event);
         }
-
-        if(update()){
-            std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
-            break;
-        }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
             skip_bot();
+            return;
+        }
+
+
+        if(update()){
+            finish_bot();
             return;
         }
         //std::this_thread::sleep_for(std::chrono::milliseconds(100)); 
         render();
 
     }
-    sf::Time elapsed = clock.getElapsedTime();
-    std::cout<<"\033[32m["<<player->name<<"]\033[0m: "<<"\033[33m"<<elapsed.asSeconds()<<"\033[0m s."<<std::endl;
 }
 
 void Game::run(){
     while(loader.has_next()){
         player = loader.next(maze.getTileSize(),maze.getWidth(),maze.getHeight());
-        if (!player) {
-            std::cerr << "Player failed to load"<<std::endl;
+        if (!player){
+            throw std::runtime_error("Player failed to load\n");
         }
         test_player(); 
     }

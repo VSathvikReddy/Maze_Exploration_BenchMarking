@@ -13,12 +13,13 @@ namespace fs = std::filesystem;
 #endif
 
 BotLoader::BotLoader(const std::string& folder){
-    if(!fs::exists(folder)) {
+    std::string bots_build_folder = "build/"+folder; 
+    if(!fs::exists(bots_build_folder)) {
         throw std::runtime_error("Bot folder does not exist\n");
         return;
     }
 
-    for(const auto& entry:fs::directory_iterator(folder)){
+    for(const auto& entry:fs::directory_iterator(bots_build_folder)){
         if(entry.path().extension() == LIB_EXT){
             bot_paths.push_back(entry.path().string());
         }
@@ -34,24 +35,20 @@ std::unique_ptr<Player_base>BotLoader::next(uint8_t tile_size, int x, int y){
     if (!has_next())
         return nullptr;
 
-    const std::string& path =bot_paths[current_index++];
-
-    return load_bot(path, tile_size, x, y);
+    return load_bot(bot_paths[current_index++], tile_size, x, y);
 }
 
 void BotLoader::debug() const{
     if (bot_paths.empty()) {
-        std::cout << "No bot modules found.\n";
+        std::cout<<"No bot modules found."<<std::endl;
         return;
     }
 
-    std::cout << "Discovered bot modules:\n";
+    std::cout<<"Discovered bot modules:\n";
 
-    for (size_t i = 0; i < bot_paths.size(); ++i)
-    {
-        std::cout << "[" << i << "] "
-                  << bot_paths[i] << "\n";
-    }
+    for(int i=0;i<bot_paths.size();i++){
+        std::cout<<"["<<i<<"] "<<bot_paths[i]<<"\n";
+    }std::cout<<std::endl;
 }
 
 

@@ -19,8 +19,8 @@ private:
     void render();
 
     void skip_bot();
+    void finish_bot();
     void test_player();
-    void send_feedback();
 public:
     Game(const std::string& maze_location, const std::string& tileset_location,const std::string& bots_location, uint8_t tile_size);
     ~Game();
