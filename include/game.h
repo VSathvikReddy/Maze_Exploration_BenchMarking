@@ -18,6 +18,7 @@ private:
     bool update();
     void render();
 
+    void skip_bot();
     void test_player();
     void send_feedback();
 public:

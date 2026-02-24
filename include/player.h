@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <SFML/Graphics.hpp>
-
+#include "maze.h"
 // Added 'NONE' so the entity can stand still
 enum class Direction : uint8_t { 
     UP = 0,
@@ -22,16 +22,16 @@ private:
     uint8_t m_tilesize;
     sf::RectangleShape shape;
 
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    
 protected:
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     std::string name = "Default";
 public:
     Player_base(uint8_t tilesize, int x, int y);
     virtual ~Player_base() = default; 
 
-    virtual Direction intent_to_move();
-    virtual void feed_back(sf::Vector2i cur_position, uint8_t top, uint8_t right, uint8_t down, uint8_t);
-
+    virtual Direction intent_to_move(sf::Vector2i cur_position,uint8_t top, uint8_t right, uint8_t down, uint8_t left);
+    void setColour(sf::Color color);
     sf::Vector2i get_position() const;
 };
 

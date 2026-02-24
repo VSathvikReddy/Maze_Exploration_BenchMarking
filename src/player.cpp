@@ -21,7 +21,7 @@ void Player_base::draw(sf::RenderTarget& target, sf::RenderStates states) const 
     target.draw(shape, states);
 }
 
-Direction Player_base::intent_to_move() {
+Direction Player_base::intent_to_move(sf::Vector2i cur_position,uint8_t top, uint8_t right, uint8_t down, uint8_t left){
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
         return Direction::UP;
     }else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
@@ -34,7 +34,7 @@ Direction Player_base::intent_to_move() {
         return Direction::NONE;
     }
 }
-void Player_base::feed_back(sf::Vector2i cur_position,uint8_t top, uint8_t right, uint8_t down, uint8_t left){
-    std::cout<<"X:"<<cur_position.x<<" Y:"<<cur_position.y<<std::endl;
-    return;
+
+void Player_base::setColour(sf::Color color){
+    shape.setFillColor(color);
 }
