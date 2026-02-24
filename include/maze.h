@@ -15,12 +15,14 @@ enum class TileType: uint8_t{
     WALL = 0,
     FLOOR = 1,
     GOAL = 2,
+    ERROR = 3
 };
 
 class Maze: public sf::Drawable, public sf::Transformable{
 private:
     Grid grid;
 
+    uint8_t tile_size;
     sf::VertexArray m_vertices;
 
     sf::Texture m_tileset;
@@ -29,10 +31,10 @@ private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
     bool load_tileset(const std::string& tileset_location);
-    bool load_vertices(uint8_t tile_size);
+    bool load_vertices();
 
-    void set_tile_texture(sf::Vertex* quad, uint8_t tile_value, uint8_t tile_size);
-    void set_tile_position(sf::Vertex* quad, uint8_t x, uint8_t y, uint8_t tile_size);
+    void set_tile_texture(sf::Vertex* quad, uint8_t tile_value);
+    void set_tile_position(sf::Vertex* quad, uint8_t x, uint8_t y);
     void set_tile_color(sf::Vertex* quad, uint8_t tile_value);
 public:
     Maze(const std::string& maze_location,const std::string& tileset_location,uint8_t tile_size);
@@ -40,9 +42,10 @@ public:
     
     Grid loadMazeFromFile(const std::string& maze_location);
 
-    uint8_t getWidth() const;
-    uint8_t getHeight() const;
-    uint8_t getTileValue(uint8_t x, uint8_t y) const;
+    int getWidth() const;
+    int getHeight() const;
+    uint8_t getTileSize() const;
+    uint8_t getTileValue(int x, int y) const;
 };
 
 #endif

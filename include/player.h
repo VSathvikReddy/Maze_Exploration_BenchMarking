@@ -30,6 +30,7 @@ public:
     virtual ~Player_base() = default; 
 
     virtual Direction intent_to_move();
+    virtual void feed_back(sf::Vector2i cur_position, uint8_t top, uint8_t right, uint8_t down, uint8_t);
 
     sf::Vector2i get_position() const;
 };

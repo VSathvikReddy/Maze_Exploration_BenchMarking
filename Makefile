@@ -4,40 +4,51 @@ BUILD_DIR := build
 SRC_DIR := src
 INC_DIR := include
 
-CPP_SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
-C_SRCS   := $(shell find $(SRC_DIR) -name '*.c')
-CPP_OBJS := $(CPP_SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
-C_OBJS   := $(C_SRCS:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
-#SRCS := $(CPP_SRCS) $(C_SRCS)
-OBJS := $(CPP_OBJS) $(C_OBJS)
+SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
+OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
+
 DEPS := $(OBJS:.o=.d)
 
 INCS := $(shell find $(INC_DIR) -type d)
 INC_FLAGS := $(addprefix -I,$(INCS))
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
-LDFLAGS := -lsfml-graphics -lsfml-window -lsfml-system
+LDFLAGS := -lsfml-graphics -lsfml-window -lsfml-system -rdynamic
 
-CXX := g++
+CXX := g++ 
 CC  := gcc
+CXXFLAGS := -std=c++17
+
+build: $(BUILD_DIR)/$(TARGET_EXEC)
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	mkdir -p $(BUILD_DIR)
-	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+	$(CXX) $(OBJS) -o $@ $(LDFLAGS) 
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	mkdir -p $(dir $@)
-	$(CXX) $(CPPFLAGS) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	mkdir -p $(dir $@)
-	$(CC) $(CPPFLAGS) -c $< -o $@
-
-run: $(BUILD_DIR)/$(TARGET_EXEC)
+run: build bots
 	./$(BUILD_DIR)/$(TARGET_EXEC)
 
-.PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)
+
+
+BOTS_DIR := bots
+BOTS_BUILD_DIR := $(BUILD_DIR)/$(BOTS_DIR)
+
+BOTS_SRCS := $(shell find $(BOTS_DIR) -name '*.cpp')
+BOTS_TARGETS := $(patsubst $(BOTS_DIR)/%.cpp,$(BOTS_BUILD_DIR)/%.so,$(BOTS_SRCS))
+
+$(BOTS_BUILD_DIR)/%.so: $(BOTS_DIR)/%.cpp
+	mkdir -p $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -shared $< -o $@
+
+
+bots: $(BOTS_TARGETS)
+
+.PHONY: clean bots run
 
 -include $(DEPS)

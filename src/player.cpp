@@ -1,4 +1,5 @@
 #include "player.h"
+#include <iostream>
 
 Player_base::Player_base(uint8_t tilesize) : m_tilesize(tilesize), position(0, 0) {
     shape.setSize(sf::Vector2f(tilesize, tilesize));
@@ -32,4 +33,7 @@ Direction Player_base::intent_to_move() {
     }else{
         return Direction::NONE;
     }
+}
+void Player_base::feed_back(sf::Vector2i cur_position,uint8_t top, uint8_t right, uint8_t down, uint8_t left){
+    return;
 }

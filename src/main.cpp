@@ -7,8 +7,8 @@
 
 
 int main(){
-    Game game("assets/maze.txt", NO_TILESET, 32);
-    game.test_player();
+    Game game("assets/maze.txt", NO_TILESET,"build/bots", 32);
+    game.run();
 
     
     return 0;

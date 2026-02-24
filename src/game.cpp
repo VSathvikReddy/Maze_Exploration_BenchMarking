@@ -1,6 +1,9 @@
 #include "game.h"
 
-Game::Game(const std::string& maze_location, const std::string& tileset_location, uint8_t tile_size):maze(maze_location, tileset_location, tile_size), player(new Player_base(tile_size)), window(sf::VideoMode({static_cast<unsigned int>(maze.getWidth()*tile_size), static_cast<unsigned int>(maze.getHeight()*tile_size)}), "Tilemap") {
+Game::Game(const std::string& maze_location, const std::string& tileset_location, const std::string& bots_location,uint8_t tile_size):
+    maze(maze_location, tileset_location, tile_size),
+    loader(bots_location),
+    window(sf::VideoMode({static_cast<unsigned int>(maze.getWidth()*tile_size),static_cast<unsigned int>(maze.getHeight()*tile_size)}), "Tilemap") {
 
 }
 
@@ -18,6 +21,17 @@ void Game::render(){
     window.draw(maze);
     window.draw(*player);
     window.display();
+}
+
+void Game::send_feedback(){
+    sf::Vector2i pos = player->get_position();
+
+    player->feed_back(pos,
+        maze.getTileValue(pos.x, pos.y + 1), // top
+        maze.getTileValue(pos.x + 1, pos.y), // right
+        maze.getTileValue(pos.x, pos.y - 1), // down
+        maze.getTileValue(pos.x - 1, pos.y)  // left
+    );
 }
 
 bool Game::update(){
@@ -43,12 +57,15 @@ bool Game::update(){
         default:
             break;
     }
-    if(maze.getTileValue(new_position.x, new_position.y) != static_cast<uint8_t>(TileType::WALL)){
-        player->set_position(new_position);
-    }
-    if(maze.getTileValue(new_position.x, new_position.y) == static_cast<uint8_t>(TileType::GOAL)){
-        return true;
+    uint8_t tile_type = maze.getTileValue(new_position.x, new_position.y);
 
+    if(tile_type == static_cast<uint8_t>(TileType::WALL) || tile_type == static_cast<uint8_t>(TileType::ERROR)){
+        return false;
+    }
+
+    player->set_position(new_position);
+    if(tile_type == static_cast<uint8_t>(TileType::GOAL)){
+        return true;
     }
     return false;
 
@@ -59,16 +76,28 @@ void Game::test_player(){
     while (window.isOpen()){
         // handle events
         sf::Event event;
-        while (window.pollEvent(event)){
+        while(window.pollEvent(event)){
             handle_event(event);
         }
         if(update()){
             break;
         }
+        send_feedback();
 
         render();
 
     }
     sf::Time elapsed = clock.getElapsedTime();
     std::cout<<"\033[32m["<<player->name<<"]\033[0m: "<<"\033[33m"<<elapsed.asSeconds()<<"\033[0m s."<<std::endl;
+}
+
+void Game::run(){
+    while(loader.has_next()){
+        player = loader.next(maze.getTileSize());
+        if (!player) {
+            std::cerr << "Player failed to load"<<std::endl;
+        }
+        test_player(); 
+    }
+    
 }

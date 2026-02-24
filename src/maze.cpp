@@ -23,7 +23,7 @@ bool Maze::load_tileset(const std::string& tileset_location){
     return true;
 }
 
-void Maze::set_tile_texture(sf::Vertex* quad, uint8_t tile_value, uint8_t tile_size){
+void Maze::set_tile_texture(sf::Vertex* quad, uint8_t tile_value){
     int tu = tile_value % (m_tileset.getSize().x / tile_size);
     int tv = tile_value / (m_tileset.getSize().x / tile_size);
     quad[0].texCoords = sf::Vector2f(tu * tile_size, tv * tile_size);
@@ -32,7 +32,7 @@ void Maze::set_tile_texture(sf::Vertex* quad, uint8_t tile_value, uint8_t tile_s
     quad[3].texCoords = sf::Vector2f(tu * tile_size, (tv + 1) * tile_size);
 }
 
-void Maze::set_tile_position(sf::Vertex* quad, uint8_t x, uint8_t y, uint8_t tile_size){
+void Maze::set_tile_position(sf::Vertex* quad, uint8_t x, uint8_t y){
     quad[0].position = sf::Vector2f(x * tile_size, y * tile_size);
     quad[1].position = sf::Vector2f((x + 1) * tile_size, y * tile_size);
     quad[2].position = sf::Vector2f((x + 1) * tile_size, (y + 1) * tile_size);
@@ -59,21 +59,21 @@ void Maze::set_tile_color(sf::Vertex* quad, uint8_t tile_value){
         quad[3].color = sf::Color::Black;
     }
 }
-bool Maze::load_vertices(uint8_t tile_size){
+bool Maze::load_vertices(){
     m_vertices.setPrimitiveType(sf::PrimitiveType::Quads);
     m_vertices.resize(grid.getWidth()*grid.getHeight()*4);
 
-    uint8_t Y = grid.getHeight();
-    uint8_t X = grid.getWidth();
+    int Y = grid.getHeight();
+    int X = grid.getWidth();
 
     for (uint8_t y = 0; y < Y; ++y) {
         for (uint8_t x = 0; x < X; ++x) {
 
             sf::Vertex* quad = &m_vertices[(x + y * X) * 4];
-            set_tile_position(quad, x, y, tile_size);
+            set_tile_position(quad, x, y);
 
             if(m_use_tileset){
-                set_tile_texture(quad, grid[y][x], tile_size);
+                set_tile_texture(quad, grid[y][x]);
             }else{
                 set_tile_color(quad, grid[y][x]);
             }
@@ -83,9 +83,11 @@ bool Maze::load_vertices(uint8_t tile_size){
     return true;
 }
 
-Maze::Maze(const std::string& maze_location, const std::string& tileset_location, uint8_t tile_size):grid(loadMazeFromFile(maze_location)){
+Maze::Maze(const std::string& maze_location, const std::string& tileset_location, uint8_t tile_size):
+    grid(loadMazeFromFile(maze_location)),
+    tile_size(tile_size){
     load_tileset(tileset_location);
-    load_vertices(tile_size);
+    load_vertices();
 }
 
 Grid Maze::loadMazeFromFile(const std::string& maze_location) {
@@ -108,6 +110,12 @@ Grid Maze::loadMazeFromFile(const std::string& maze_location) {
 }
 
 
-uint8_t Maze::getWidth() const { return grid.getWidth(); }
-uint8_t Maze::getHeight() const { return grid.getHeight(); }
-uint8_t Maze::getTileValue(uint8_t x, uint8_t y) const { return grid[y][x]; }
+int Maze::getWidth() const { return grid.getWidth(); }
+int Maze::getHeight() const { return grid.getHeight(); }
+uint8_t Maze::getTileSize() const{ return tile_size;}
+uint8_t Maze::getTileValue(int x, int y) const {
+    if (x < 0 || y < 0 ||x >= grid.getWidth() ||y >= grid.getHeight()){
+        return static_cast<uint8_t>(TileType::ERROR);
+    }
+    return grid[y][x];
+}
