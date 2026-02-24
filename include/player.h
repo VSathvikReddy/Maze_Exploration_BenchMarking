@@ -26,7 +26,7 @@ private:
 protected:
     std::string name = "Default";
 public:
-    Player_base(uint8_t tilesize);
+    Player_base(uint8_t tilesize, int x, int y);
     virtual ~Player_base() = default; 
 
     virtual Direction intent_to_move();

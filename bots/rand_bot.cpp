@@ -3,8 +3,8 @@
 
 class RandomBot : public Player_base {
 public:
-    RandomBot(uint8_t tile_size)
-        : Player_base(tile_size)
+    RandomBot(uint8_t tile_size,int x, int y)
+        : Player_base(tile_size, x, y)
     {
         name = "RandomBot";
     }
@@ -16,6 +16,6 @@ public:
 };
 
 extern "C"
-Player_base* create_bot(uint8_t tile_size) {
-    return new RandomBot(tile_size);
+Player_base* create_bot(uint8_t tile_size, int x, int y) {
+    return new RandomBot(tile_size,x,y);
 }

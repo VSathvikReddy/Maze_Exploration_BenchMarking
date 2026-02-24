@@ -29,13 +29,13 @@ bool BotLoader::has_next() const{
     return current_index < bot_paths.size();
 }
 
-std::unique_ptr<Player_base>BotLoader::next(uint8_t tile_size){
+std::unique_ptr<Player_base>BotLoader::next(uint8_t tile_size, int x, int y){
     if (!has_next())
         return nullptr;
 
     const std::string& path =bot_paths[current_index++];
 
-    return load_bot(path, tile_size);
+    return load_bot(path, tile_size, x, y);
 }
 
 void BotLoader::debug() const{

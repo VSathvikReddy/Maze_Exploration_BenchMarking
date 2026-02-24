@@ -8,9 +8,9 @@
     #include <dlfcn.h>
 #endif
 
-using CreateBotFunc = Player_base* (*)(uint8_t);
+using CreateBotFunc = Player_base* (*)(uint8_t,int,int);
 
-std::unique_ptr<Player_base> load_bot(const std::string& path,uint8_t tile_size){
+std::unique_ptr<Player_base> load_bot(const std::string& path,uint8_t tile_size, int x, int y){
 #ifdef _WIN32
     HMODULE lib = LoadLibraryA(path.c_str());
     if (!lib) {
@@ -36,5 +36,5 @@ std::unique_ptr<Player_base> load_bot(const std::string& path,uint8_t tile_size)
         return nullptr;
     }
 
-    return std::unique_ptr<Player_base>(create(tile_size));
+    return std::unique_ptr<Player_base>(create(tile_size, x, y));
 }

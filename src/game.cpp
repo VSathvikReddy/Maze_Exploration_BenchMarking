@@ -93,7 +93,7 @@ void Game::test_player(){
 
 void Game::run(){
     while(loader.has_next()){
-        player = loader.next(maze.getTileSize());
+        player = loader.next(maze.getTileSize(),maze.getWidth(),maze.getHeight());
         if (!player) {
             std::cerr << "Player failed to load"<<std::endl;
         }

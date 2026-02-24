@@ -19,7 +19,7 @@ int Grid::getHeight() const { return height; }
 std::ostream& operator<<(std::ostream& os, const Grid& grid) {
     for (int y = 0; y < grid.height; ++y) {
         for (int x = 0; x < grid.width; ++x) {
-            // We use 'grid' instead of '*this'
+
             // The static_cast<int> is perfect here to prevent printing ASCII gibberish!
             os << static_cast<int>(grid[y][x]) << " ";
         }
